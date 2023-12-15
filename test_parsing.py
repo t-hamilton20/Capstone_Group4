@@ -9,12 +9,12 @@ annotation_files = [os.path.join(dsDir, file) for file in
 
 for annotation in annotation_files:
     fileName = os.path.splitext(annotation)[0]
-    annoDir = fileName+'.json'
+    annoDir = fileName + '.json'
     print(annoDir)
     with open(annoDir, 'r') as file:
         data = json.load(file)
 
-    imgDir = fileName+'.jpg'
+    imgDir = fileName + '.jpg'
     full_image = Image.open(imgDir)
 
     # Extract sign information

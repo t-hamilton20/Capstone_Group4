@@ -35,4 +35,4 @@ for annotation in annotation_files:
             extracted_region = full_image.crop((xmin, ymin, xmax, ymax))
 
             # Show the extracted region
-            # extracted_region.show()
+            extracted_region.show()

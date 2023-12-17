@@ -22,7 +22,7 @@ def check_folders():
         print(f"Created folder: {main_folder}")
 
     # Define subfolder names
-    subfolders = ["models", "loss_plots"]
+    subfolders = ["models", "loss_plots", "Sign_Dataset"]
 
     # Loop through subfolder names, create if they don't exist
     for folder in subfolders:

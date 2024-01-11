@@ -16,6 +16,7 @@ annotation_files = [os.path.join(dsDir, annotations_folder, file) for file in
                     os.listdir(os.path.join(dsDir, annotations_folder)) if file.endswith('.json')]
 
 index = 0
+labels = []
 
 # Save sign annotations to a .txt file in the annotations subfolder
 annotation_file_path = os.path.join(output_dir, 'sign_annotation.txt')
@@ -28,7 +29,7 @@ with open(annotation_file_path, 'w') as f:
 
         # Check if the image file exists
         if not os.path.exists(imgDir):
-            #print(f"Image file not found: {imgDir}")
+            print(f"Image file not found: {imgDir}")
             continue
 
         with open(annotation, 'r') as file:
@@ -46,6 +47,10 @@ with open(annotation_file_path, 'w') as f:
             bbox = sign['bbox']
             label = sign['label']
             if label != 'other-sign':
+
+                if label not in labels:
+                    labels.append(label)
+
                 xminTemp, yminTemp, ymaxTemp, xmaxTemp = bbox['xmin'], bbox['ymin'], bbox['ymax'], bbox['xmax']
                 xmax = max(xmaxTemp, xminTemp)
                 ymax = max(ymaxTemp, yminTemp)
@@ -57,7 +62,8 @@ with open(annotation_file_path, 'w') as f:
 
                 # Print or process the extracted information as needed
                 img_file = os.path.basename(fileName) + ".jpg"
-                entry = f"{base_filename}_{i}.jpg    Class: {label}  Coordinates: ({xmin},{ymin},{ymax},{xmax})"
+                label_index = labels.index(label)
+                entry = f"{base_filename}_{i}.jpg  Class: {label_index}  Coordinates: ({xmin},{ymin},{ymax},{xmax})"
                 print(entry, file=f)
 
                 # Crop the region from the full image
@@ -67,3 +73,10 @@ with open(annotation_file_path, 'w') as f:
                 extracted_image_path = os.path.join(output_dir, f"{base_filename}_{i}.jpg")
                 extracted_region.save(extracted_image_path)
                 i += 1
+
+labels_file_path = os.path.join(output_dir, 'labels.txt')
+with open(labels_file_path, 'w') as f:
+    for i, label in enumerate(labels):
+        f.write(f"{i}: {label}\n")
+    
+    f.close()

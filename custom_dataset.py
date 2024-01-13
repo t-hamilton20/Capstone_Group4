@@ -22,16 +22,14 @@ class SignDataset(Dataset):
         image_files = []
         labels = []
 
-        label_file = os.path.join(self.root_dir, self.folder, f'labels.txt')
+        label_file = os.path.join(self.root_dir, self.folder, f'sign_annotation.txt')
 
         with open(label_file, 'r') as file:
             for line in file:
                 # Split the line into image file, label, and class
-                image_file, label, class_name = line.strip().split()
+                image_file, _, label, _, coordinates = line.strip().split()
                 image_files.append(os.path.join(self.root_dir, self.folder, image_file))
 
-                # Update the label based on the class_name
-                label = 1 if class_name == 'Car' else 0
                 labels.append(int(label))
 
         return image_files, labels

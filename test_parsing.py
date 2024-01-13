@@ -4,9 +4,9 @@ import os
 from PIL import Image
 
 dsDir = 'data/Sign_Dataset/'
-train_folder = 'train'
+train_folder = 'val'
 annotations_folder = 'annotations'
-output_dir = 'data/Extracted_Images/'
+output_dir = 'data/Extracted_Images/'+train_folder
 
 # Create a subfolder for extracted images if it doesn't exist
 if not os.path.exists(output_dir):

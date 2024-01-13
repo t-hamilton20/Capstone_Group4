@@ -139,7 +139,7 @@ def main(args):
     device = get_device(args.cuda)
     print("Device: ", device)
 
-    rootDir = "/data/"
+    rootDir = "./data/Extracted_Images/"
 
     train_dataset = SignDataset(root_dir=rootDir, train=True, transform=transform())
     # test_dataset = SignDataset(train=False, transform=transforms.ToTensor())
@@ -147,7 +147,7 @@ def main(args):
     train_loader = DataLoader(dataset=train_dataset, batch_size=args.b, shuffle=True)
     # test_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
 
-    numClasses = 300
+    numClasses = 400
 
     # Load pre-trained ResNet-18
     model = resnet18(weights=ResNet18_Weights.DEFAULT)

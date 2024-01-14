@@ -1,0 +1,1 @@
+python test_all.py -s signClassifier_20e_32b_Adam1e-4_ExpLR0.9.pth -cuda y

@@ -64,7 +64,7 @@ def main(args):
     # Define loss function
     criterion = nn.CrossEntropyLoss()
 
-    total = 0
+    count = 0
     Top5Count = 0
     Top1Count = 0
 
@@ -82,11 +82,11 @@ def main(args):
         elif label in predicted_classes:
             Top5Count += 1
 
-        total += 1
-        print(total)
+        count += 1
+        print(count)
 
-    print(f"Top 1 Accuracy: {Top1Count}/{total}")
-    print(f"Top 5 Accuracy: {Top5Count}/{total}")
+    print(f"Top 1 Accuracy: {Top1Count}/{count}")
+    print(f"Top 5 Accuracy: {Top5Count}/{count}")
 
 
 if __name__ == '__main__':

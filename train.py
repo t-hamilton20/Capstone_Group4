@@ -6,10 +6,10 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR, ExponentialLR
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from torchvision.models import resnet18, ResNet18_Weights
 from custom_dataset import SignDataset
 import matplotlib.pyplot as plt
 import os
+from model import SignDetector
 
 
 def check_folders():
@@ -59,9 +59,9 @@ def get_device(is_cuda: str):
 
 def transform():
     transform = transforms.Compose([
-        transforms.Resize(size=(150, 150)),
+        transforms.Resize(size=(256, 256)),
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) THIS WAS CAUSING THE COLOURING ISSUES
     ])
     return transform
 
@@ -149,9 +149,8 @@ def main(args):
 
     numClasses = 400
 
-    # Load pre-trained ResNet-18
-    model = resnet18(weights=ResNet18_Weights.DEFAULT)
-    model.fc = nn.Linear(model.fc.in_features, numClasses)
+    # Load model
+    model = SignDetector()
     model.to(device)
 
     # Define loss function and optimizer

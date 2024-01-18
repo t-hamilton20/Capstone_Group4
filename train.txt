@@ -1,1 +1,1 @@
-python train.py -e 20 -b 32 -s signClassifier_20e_32b_Adam1e-4_ExpLR0.9.pth -p signClassifier_20e_32b_Adam1e-4_ExpLR0.9.png -cuda y
+python train.py -e 30 -b 32 -s signClassifierRes50Mod2_30e_32b_Adam1e-4_ExpLR0.9.pth -p signClassifierRes50Mod2_30e_32b_Adam1e-4_ExpLR0.9.png -cuda y

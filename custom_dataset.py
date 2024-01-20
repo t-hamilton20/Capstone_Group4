@@ -11,9 +11,9 @@ class SignDataset(Dataset):
 
         # Define the folder based on the 'train' parameter
         if self.train:
-            self.folder = 'train'
+            self.folder = 'augmented'
         else:
-            self.folder = 'test'
+            self.folder = 'val/extracted'
 
         # Get the list of image files and corresponding labels
         self.image_files, self.labels = self.load_data()

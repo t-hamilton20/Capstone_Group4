@@ -1,5 +1,5 @@
-annotations = 'data/Complete/extracted/sign_annotation.txt'
-signs = 'data/Complete/extracted/labels.txt'
+annotations = 'data/Complete/augmented/sign_annotation.txt'
+signs = 'data/Complete/augmented/labels.txt'
 
 # Define dictionaries to store class counts and class names
 class_counts = {}

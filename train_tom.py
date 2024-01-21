@@ -99,7 +99,7 @@ print(f'Device: {device}')
 root_dir = "../data/Complete/"
 
 train_dataset = SignDataset(root_dir=root_dir, train=True, transform=train_transform())
-test_dataset = SignDataset(root_dir=root_dir, train=False, transform=transforms.ToTensor())
+test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=args.b, shuffle=True)
 val_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)

@@ -68,7 +68,7 @@ with open(annotation_file_path, 'w') as f:
                         # Print or process the extracted information as needed
                         img_file = os.path.basename(fileName) + ".jpg"
                         label_index = labels.index(label)
-                        entry = f"{base_filename}_{i}_{row}_{col}.jpg  Class: {label_index}  Coordinates: ({xmin+row*2},{ymin+col*2},{ymax+col*2},{xmax+row*2})"
+                        entry = f"{base_filename}_{i}.jpg  Class: {label_index}  Coordinates: ({xmin+row*2},{ymin+col*2},{ymax+col*2},{xmax+row*2})"
                         print(entry, file=f)
 
                         # Crop the region from the full image

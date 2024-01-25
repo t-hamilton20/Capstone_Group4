@@ -3,10 +3,10 @@ import os
 
 from PIL import Image
 
-dsDir = 'data/Complete/Images/'
+dsDir = 'data/Complete/val/images/'
 train_folder = ''
 annotations_folder = 'data/Complete/mtsd_v2_fully_annotated/annotations'
-output_dir = 'data/Complete/augmented/'
+output_dir = 'data/Complete/val/extracted/'
 
 # Create a subfolder for extracted images if it doesn't exist
 if not os.path.exists(output_dir):
@@ -18,8 +18,15 @@ annotation_files = [os.path.join(annotations_folder, file) for file in
 index = 0
 labels = []
 
+# Read labels from the preexisting file
+labels = []
+with open('data/Complete/four_x/new_labels.txt', 'r') as labels_file:
+    for line in labels_file:
+        label = line.strip().split(': ')[1]
+        labels.append(label)
+
 # Save sign annotations to a .txt file in the annotations subfolder
-annotation_file_path = os.path.join(output_dir, 'sign_annotation.txt')
+annotation_file_path = os.path.join(output_dir, 'new_sign_annotation.txt')
 with open(annotation_file_path, 'w') as f:
     for annotation in annotation_files:
         index += 1
@@ -46,40 +53,36 @@ with open(annotation_file_path, 'w') as f:
         for sign in signs:
             bbox = sign['bbox']
             label = sign['label']
-            if label != 'other-sign':
 
-                if label not in labels:
-                    labels.append(label)
+            if label != 'other-sign' and label in labels:
+
+                # if label not in labels:
+                #     labels.append(label)
 
                 xminTemp, yminTemp, ymaxTemp, xmaxTemp = bbox['xmin'], bbox['ymin'], bbox['ymax'], bbox['xmax']
                 xmax = max(xmaxTemp, xminTemp)
                 ymax = max(ymaxTemp, yminTemp)
                 xmin = min(xminTemp, xmaxTemp)
                 ymin = min(yminTemp, ymaxTemp)
-                step_x = 4
-                step_y = 4
-                
-                for row in range(step_x):
-                    for col in range(step_y):
 
-                        # Extract the base filename without the directory
-                        base_filename = os.path.basename(fileName)
+                # Extract the base filename without the directory
+                base_filename = os.path.basename(fileName)
 
-                        # Print or process the extracted information as needed
-                        img_file = os.path.basename(fileName) + ".jpg"
-                        label_index = labels.index(label)
-                        entry = f"{base_filename}_{i}_{row}_{col}.jpg  Class: {label_index}  Coordinates: ({xmin+row*2},{ymin+col*2},{ymax+col*2},{xmax+row*2})"
-                        print(entry, file=f)
+                # Print or process the extracted information as needed
+                img_file = os.path.basename(fileName) + ".jpg"
+                label_index = labels.index(label)
+                entry = f"{base_filename}_{i}.jpg  Class: {label_index}  Coordinates: ({xmin},{ymin},{ymax},{xmax})"
+                print(entry, file=f)
 
-                        # Crop the region from the full image
-                        extracted_region = full_image.crop((xmin+row*2, ymin+col*2, xmax+row*2, ymax+col*2))
+                # Crop the region from the full image
+                extracted_region = full_image.crop((xmin, ymin, xmax, ymax))
 
-                        # Save the extracted region to the subfolder
-                        extracted_image_path = os.path.join(output_dir, f"{base_filename}_{i}.jpg")
-                        extracted_region.save(extracted_image_path)
-                        i += 1
+                # Save the extracted region to the subfolder
+                extracted_image_path = os.path.join(output_dir, f"{base_filename}_{i}.jpg")
+                extracted_region.save(extracted_image_path)
+                i += 1
 
-labels_file_path = os.path.join(output_dir, 'labels.txt')
+labels_file_path = os.path.join(output_dir, 'new_labels.txt')
 with open(labels_file_path, 'w') as f:
     for i, label in enumerate(labels):
         f.write(f"{i}: {label}\n")

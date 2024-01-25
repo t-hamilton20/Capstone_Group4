@@ -13,11 +13,11 @@ import torchsummary
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Arguments to pass to the train module')
     parser.add_argument('-lr', type=float, default=0.001, help='initial learning rate')
-    parser.add_argument('-e', type=int, default=30, help='number of epochs')
-    parser.add_argument('-b', type=int, default=512, help='batch size')
+    parser.add_argument('-e', type=int, default=15, help='number of epochs')
+    parser.add_argument('-b', type=int, default=32, help='batch size')
     parser.add_argument('-cuda', type=int, default='1', help='device')
-    parser.add_argument('-s', type=str, default='weights.pth', help='weights path')
-    parser.add_argument('-p', type=str, default='loss_plot.png', help='Path to save the loss plot')
+    parser.add_argument('-s', type=str, default='ExpLR_15e_32b.pth', help='weights path')
+    parser.add_argument('-p', type=str, default='ExpLR_15e_32b.png', help='Path to save the loss plot')
 
     return parser.parse_args()
 
@@ -34,10 +34,14 @@ def train_transform():
     return transforms.Compose(transform_list)
 
 
-test_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
+def test_transform():
+    transform_list = [
+    transforms.Resize((224, 224)),  # Resize images to a consistent size
+    transforms.Pad((0, 18)),  # Pad images to ensure consistent height
     transforms.ToTensor(),
-])
+    ]
+    return transforms.Compose(transform_list)
+
 
 def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, scheduler, device):
     print(f"Starting training at: {datetime.datetime.now()}")
@@ -96,10 +100,10 @@ if args.cuda == 0:
     device = 'cpu'
 print(f'Device: {device}')
 
-root_dir = "../data/Complete/"
+root_dir = "./data/Extracted_Images/"
 
 train_dataset = SignDataset(root_dir=root_dir, train=True, transform=train_transform())
-test_dataset = SignDataset(root_dir=root_dir, train=False, transform=transforms.ToTensor())
+test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform())
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=args.b, shuffle=True)
 val_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
@@ -110,10 +114,10 @@ model.to(device)
 # print(torchsummary.summary(model, batch_size=args.b, input_size=(3, 224, 224)))
 
 lr = args.lr
-opt = torch.optim.Adam(params=model.parameters(), lr=lr)
-sched = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer=opt, factor=0.1, patience=5, verbose=True)
+opt = torch.optim.AdamW(params=model.parameters(), lr=lr)
+#sched = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer=opt, factor=0.1, patience=5, verbose=True)
 # sched = torch.optim.lr_scheduler.StepLR(optimizer=opt, gamma=0.1, step_size=15)
-# sched = torch.optim.lr_scheduler.ExponentialLR(optimizer=opt, gamma=0.95)
+sched = torch.optim.lr_scheduler.ExponentialLR(optimizer=opt, gamma=0.90)
 loss_fn = torch.nn.CrossEntropyLoss()
 
 train(n_epochs=args.e, optimizer=opt, model=model, scheduler=sched, loss_fn=loss_fn, device=device, train_loader=train_loader, val_loader=val_loader)

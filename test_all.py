@@ -1,97 +1,62 @@
 import argparse
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from matplotlib import pyplot as plt
-from torch.utils.data import DataLoader
+from model import EncoderAndClassifier, CustomNetwork
 from torchvision import transforms
-from torchvision.models import resnet18, ResNet18_Weights
 from custom_dataset import SignDataset
+from torch.utils.data import DataLoader
 
 
-def get_device(is_cuda: str):
-    if (is_cuda.lower() == 'y' and torch.cuda.is_available()):
-        return torch.device("cuda")
-    return torch.device("cpu")
-
-
-def transform():
-    transform = transforms.Compose([
-        transforms.Resize(size=(150, 150)),
+def test_transform():
+    transform_list = [
+        transforms.Resize((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ])
-    return transform
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+    ]
+    return transforms.Compose(transform_list)
 
 
-def test_single_image(model, image, device, topk=5):
-    model.eval()
-    image = image.to(device)
-    image = image.unsqueeze(0)  # Add batch dimension
-    with torch.no_grad():
-        output = model(image)
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Arguments to pass to the train module')
+    parser.add_argument('-cuda', type=str, default='cuda:1', help='device')
+    parser.add_argument('-s', type=str, default='./data/models/7_weights.pth', help='weight path')
+    parser.add_argument('-b', type=int, default=1, help='batch size')
 
-    # Apply softmax to get probabilities
-    probabilities = F.softmax(output, dim=1)
-
-    # Get the top k predictions
-    top_probabilities, top_classes = torch.topk(probabilities, topk)
-
-    return top_probabilities.squeeze().cpu().numpy(), top_classes.squeeze().cpu().numpy()
+    argsUsed = parser.parse_args()
+    return argsUsed
 
 
-def main(args):
-    device = get_device(args.cuda)
-    print("Device: ", device)
+if __name__ == "__main__":
 
-    rootDir = "./data/Extracted_Images/"
+    args = parse_arguments()
 
-    test_dataset = SignDataset(root_dir=rootDir, train=False, transform=transform())
-    test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
+    root_dir = "./data/Extracted_Images/"
 
-    numClasses = 400
+    test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform())
+    test_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
 
-    # Load pre-trained ResNet-18
-    model = resnet18(weights=ResNet18_Weights.DEFAULT)
-    model.fc = nn.Linear(model.fc.in_features, numClasses)
-    model.to(device)
+    model = CustomNetwork(None, None)
+    model.load_state_dict(torch.load(args.s))
 
-    model_path = "./data/models/"+args.s
-    # Load the trained model weights
-    model.load_state_dict(torch.load(model_path))
-    model.eval()
+    correct_top1 = 0
+    correct_top5 = 0
+    total = 0
+    num = 0
 
-    # Define loss function
-    criterion = nn.CrossEntropyLoss()
+    with (torch.no_grad()):
+        for img, labels in test_loader:
+            if num % 100 == 0:
+                print(num)
+            outputs = model(img)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct_top1 += (predicted == labels).sum().item()
 
-    count = 0
-    Top5Count = 0
-    Top1Count = 0
+            _, predicted_top5 = torch.topk(outputs.data, 5, dim=1)
+            correct_top5 += sum([label in predicted_top5[i] for i, label in enumerate(labels)])
+            num += 1
 
-    # Test the model on a single image
-    for idx, (images, labels) in enumerate(test_loader):
-        # Assuming only one image is loaded in the batch
-        image, label = images[0], labels[0]
+    top1_accuracy = 100 * correct_top1 / total
+    top5_accuracy = 100 * correct_top5 / total
 
-        # Test the model on the single image
-        probabilities, predicted_classes = test_single_image(model, image, device, topk=5)
-
-        if label == predicted_classes[0]:
-            Top1Count += 1
-            Top5Count += 1
-        elif label in predicted_classes:
-            Top5Count += 1
-
-        count += 1
-        print(count)
-
-    print(f"Top 1 Accuracy: {Top1Count}/{count}")
-    print(f"Top 5 Accuracy: {Top5Count}/{count}")
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-s', type=str, help='Path to the trained model weights')
-    parser.add_argument('-cuda', type=str, default='Y', help="Whether to use CPU or Cuda, use Y or N")
-    args = parser.parse_args()
-    main(args)
+    print(f'Top-1 Accuracy: {top1_accuracy}%')
+    print(f'Top-5 Accuracy: {top5_accuracy}%')

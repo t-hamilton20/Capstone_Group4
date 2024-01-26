@@ -6,7 +6,7 @@ from PIL import Image
 dsDir = 'data/Complete/Images/'
 train_folder = ''
 annotations_folder = 'data/Complete/mtsd_v2_fully_annotated/annotations'
-output_dir = 'data/Complete/augmented/'
+output_dir = 'data/Complete/four_x/'
 
 # Create a subfolder for extracted images if it doesn't exist
 if not os.path.exists(output_dir):
@@ -56,8 +56,8 @@ with open(annotation_file_path, 'w') as f:
                 ymax = max(ymaxTemp, yminTemp)
                 xmin = min(xminTemp, xmaxTemp)
                 ymin = min(yminTemp, ymaxTemp)
-                step_x = 4
-                step_y = 4
+                step_x = 2
+                step_y = 2
                 
                 for row in range(step_x):
                     for col in range(step_y):

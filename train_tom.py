@@ -39,11 +39,27 @@ test_transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
+def calculate_class_weights(train_loader, num_classes):
+    class_counts = torch.zeros(num_classes)
+    total_samples = 0
+
+    for _, labels in train_loader:
+        class_counts += torch.bincount(labels, minlength=num_classes)
+        total_samples += len(labels)
+
+    class_weights = total_samples / (num_classes * class_counts)
+    return class_weights
+
+num_classes = 400
+
 def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, scheduler, device):
     print(f"Starting training at: {datetime.datetime.now()}")
 
     losses_train = []
     losses_val = []
+
+    class_weights = calculate_class_weights(train_loader, num_classes)
+    class_weights = class_weights.to(device)
 
     for epoch in range(1, n_epochs + 1):
         model.train()
@@ -55,6 +71,7 @@ def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, schedul
             optimizer.zero_grad()
             outputs = model(img)
             loss = loss_fn(outputs, labels)
+            # loss = torch.nn.functional.cross_entropy(outputs, labels, weight=class_weights)
             loss.backward()
             optimizer.step()
             loss_train += loss.item()

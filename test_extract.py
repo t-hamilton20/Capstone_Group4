@@ -20,7 +20,7 @@ labels = []
 
 # Read labels from the preexisting file
 labels = []
-with open('data/Complete/augmented/labels.txt', 'r') as labels_file:
+with open('data/Complete/four_x/labels.txt', 'r') as labels_file:
     for line in labels_file:
         label = line.strip().split(': ')[1]
         labels.append(label)

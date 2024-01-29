@@ -4,6 +4,8 @@ from model import EncoderAndClassifier, CustomNetwork
 from torchvision import transforms
 from custom_dataset import SignDataset
 from torch.utils.data import DataLoader
+from torchvision.datasets.gtsrb import GTSRB
+
 
 def test_transform():
     transform_list = [
@@ -30,10 +32,13 @@ if __name__ == "__main__":
 
     root_dir = "../data/Complete/"
 
-    test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform())
-    test_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
+    test_dataset = GTSRB(root='./../data/GTRSB/', split='test', transform=test_transform(), download=True)
+    # print(test_dataset.)
+    # test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform())
+    test_loader = DataLoader(dataset=test_dataset, shuffle=False)
 
     model = CustomNetwork(None, None)
+    model.eval()
     model.load_state_dict(torch.load(args.s))
 
     correct_top1 = 0

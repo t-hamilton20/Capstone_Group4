@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from custom_dataset import SignDataset
 from model import EncoderAndClassifier, CustomNetwork
 import torchsummary
+from torchvision.datasets.gtsrb import GTSRB
 
 
 def parse_arguments():
@@ -98,8 +99,10 @@ print(f'Device: {device}')
 
 root_dir = "../data/Complete/"
 
-train_dataset = SignDataset(root_dir=root_dir, train=True, transform=train_transform())
-test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform)
+train_dataset = GTSRB(root='./../data/GTRSB/', split='train', transform=train_transform(), download=True)
+test_dataset = GTSRB(root='./../data/GTRSB/', split='test', transform=test_transform, download=True)
+# train_dataset = SignDataset(root_dir=root_dir, train=True, transform=train_transform())
+# test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=args.b, shuffle=True)
 val_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)

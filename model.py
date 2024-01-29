@@ -1,54 +1,28 @@
 import torch
 import torch.nn as nn
-from torchvision.models import resnet18, ResNet18_Weights
+from torchvision.models import resnet50, ResNet50_Weights
 
-class ResnetLocal(nn.Module):
+
+class CustomResNet(nn.Module):
     def __init__(self, num_classes=400):
-        super(ResnetLocal, self).__init__()
-        self.resnet = resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
-        in_channels = 3  # Assuming RGB images
-        self.resnet.conv1 = nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-        in_features = self.resnet.fc.in_features
-        self.resnet.fc = nn.Sequential(
-            nn.Linear(in_features, num_classes)  # Update to num_classes
+        super(CustomResNet, self).__init__()
+        # Load a pre-trained ResNet50 model
+        self.base_model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
+
+        # Remove the original fully connected layer
+        num_features = self.base_model.fc.in_features
+        self.base_model.fc = nn.Identity()
+
+        # Additional fully connected layers with batch normalization
+        self.fc_layers = nn.Sequential(
+            nn.Linear(num_features, 512),  # First additional FC layer
+            nn.BatchNorm1d(512),  # Batch Normalization
+            nn.ReLU(inplace=True),  # Activation function
+            nn.Dropout(0.5),  # Dropout for regularization
+            nn.Linear(512, num_classes)  # Final FC layer that outputs the class scores
         )
 
     def forward(self, x):
-        return self.resnet(x)
-
-class EncoderAndClassifier:
-    encoder = nn.Sequential(*list(resnet18(weights=ResNet18_Weights.IMAGENET1K_V1).children())[:-1])
-    num_features = resnet18().fc.in_features
-    simple_classification = nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(num_features, 400)
-    )
-
-class CustomNetwork(nn.Module):
-    def __init__(self, encoder=None, classification=None):
-        super(CustomNetwork, self).__init__()
-
-        self.encoder = encoder if encoder is not None else EncoderAndClassifier.encoder
-
-        for param in self.encoder.parameters():
-            param.requires_grad = False
-
-        self.mse_loss = nn.MSELoss()
-
-        self.classification = classification if classification is not None else EncoderAndClassifier.simple_classification
-        self.init_classification_weights(mean=0.0, std=0.1)
-
-    def init_classification_weights(self, mean, std):
-        for param in self.classification.parameters():
-            nn.init.normal_(param, mean=mean, std=std)
-
-    def encode(self, x):
-        return self.encoder(x)
-
-    def classify(self, x):
-        return self.classification(x)
-
-    def forward(self, x):
-        x = self.encoder(x)
-        output = self.classify(x)
-        return output
+        x = self.base_model(x)  # Pass input through the base model
+        x = self.fc_layers(x)  # Pass base model output through the new FC layers
+        return x

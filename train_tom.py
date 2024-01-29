@@ -29,7 +29,7 @@ def train_transform():
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
         # transforms.CenterCrop((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        transforms.Normalize(mean=[0, 0, 0], std=[0.5, 0.5, 0.5])
     ]
     return transforms.Compose(transform_list)
 

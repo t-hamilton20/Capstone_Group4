@@ -20,7 +20,14 @@ class EncoderAndClassifier:
     num_features = resnet18().fc.in_features
     simple_classification = nn.Sequential(
         nn.Flatten(),
-        nn.Linear(num_features, 350)
+        nn.Flatten(),
+        nn.Linear(num_features, num_features//2),
+        nn.BatchNorm1d(num_features//2),
+        nn.ReLU(),
+        nn.Linear(num_features//2, num_features//4),
+        nn.BatchNorm1d(num_features//4),
+        nn.ReLU(),
+        nn.Linear(num_features//4, 350)
     )
     
 class CustomNetwork(nn.Module):

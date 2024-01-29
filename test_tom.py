@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     model = CustomNetwork(None, None)
     model.load_state_dict(torch.load(args.s))
+    model.eval()
 
     correct_top1 = 0
     correct_top5 = 0

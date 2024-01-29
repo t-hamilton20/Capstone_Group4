@@ -1,5 +1,5 @@
-annotations = 'data/Complete/four_x/new_sign_annotation.txt'
-signs = 'data/Complete/four_x/new_labels.txt'
+annotations = 'data/Complete/val/extracted/new_sign_annotation.txt'
+signs = 'data/Complete/val/extracted/new_labels.txt'
 
 # Define dictionaries to store class counts and class names
 class_counts = {}
@@ -36,3 +36,25 @@ for class_number, count in sorted_class_counts:
     print(f'Class {class_number}: {class_name} - {count} occurrences - {proportion:.2f}% of total')
 
 print(f"Total number of classes: {len(class_counts)}")
+
+
+# annotations2 = 'data/Complete/four_x/new_sign_annotation.txt'
+# signs2 = 'data/Complete/four_x/new_labels.txt'
+
+# class_names2 = {}
+
+# # Read class names from the second file
+# with open(signs2, 'r') as names_file:
+#     for line in names_file:
+#         parts = line.strip().split(': ')
+#         if len(parts) == 2:
+#             class_names2[parts[0]] = parts[1]
+
+# for key in class_names2:
+#     val1 = class_names[key]
+#     val2 = class_names2[key]
+#     if val1 != val2:
+#         print(f"MISMATCH: {key}, {val1} and {val2}")
+
+#     else:
+#         print("matching")

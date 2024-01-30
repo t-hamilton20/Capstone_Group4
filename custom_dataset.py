@@ -11,9 +11,9 @@ class SignDataset(Dataset):
 
         # Define the folder based on the 'train' parameter
         if self.train:
-            self.folder = 'four_x'
+            self.folder = 'train'
         else:
-            self.folder = 'val/extracted'
+            self.folder = 'test'
 
         # Get the list of image files and corresponding labels
         self.image_files, self.labels = self.load_data()
@@ -22,7 +22,7 @@ class SignDataset(Dataset):
         image_files = []
         labels = []
 
-        label_file = os.path.join(self.root_dir, self.folder, f'new_sign_annotation.txt')
+        label_file = os.path.join(self.root_dir, self.folder, f'sign_annotation.txt')
 
         with open(label_file, 'r') as file:
             for line in file:

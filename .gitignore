@@ -1,4 +1,7 @@
 /data/Sign_Dataset
 /data/OG_Data
 /data/Extracted_Images
+data/Extracted_Images_old
 /data/Extracted_Images.zip
+/data/Extracted_Images_old.zip
+/data/models/intermediates

@@ -1,7 +1,7 @@
-annotations = 'data/Complete/four_x/sign_annotation.txt'
-signs = 'data/Complete/four_x/labels.txt'
-new_annotations = 'data/Complete/four_x/new_sign_annotation.txt'
-new_signs = 'data/Complete/four_x/new_labels.txt'
+annotations = 'data/Complete/no_small/sign_annotation.txt'
+signs = 'data/Complete/no_small/labels.txt'
+new_annotations = 'data/Complete/no_small/new_sign_annotation.txt'
+new_signs = 'data/Complete/no_small/new_labels.txt'
 
 # Define dictionaries to store class counts and class names
 class_counts = {}

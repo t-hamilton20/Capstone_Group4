@@ -1,6 +1,5 @@
 import json
 import os
-
 from PIL import Image
 
 dsDir = 'data/Complete/val/images/'
@@ -26,7 +25,7 @@ with open('data/Complete/four_x/new_labels.txt', 'r') as labels_file:
         labels.append(label)
 
 # Save sign annotations to a .txt file in the annotations subfolder
-annotation_file_path = os.path.join(output_dir, 'new_sign_annotation.txt')
+annotation_file_path = os.path.join(output_dir, 'no_small_sign_annotation.txt')
 with open(annotation_file_path, 'w') as f:
     for annotation in annotation_files:
         index += 1
@@ -65,6 +64,9 @@ with open(annotation_file_path, 'w') as f:
                 xmin = min(xminTemp, xmaxTemp)
                 ymin = min(yminTemp, ymaxTemp)
 
+                if (ymax - ymin) < 50 or (xmax - xmin) < 50:
+                    continue
+
                 # Extract the base filename without the directory
                 base_filename = os.path.basename(fileName)
 
@@ -82,7 +84,7 @@ with open(annotation_file_path, 'w') as f:
                 extracted_region.save(extracted_image_path)
                 i += 1
 
-labels_file_path = os.path.join(output_dir, 'new_labels.txt')
+labels_file_path = os.path.join(output_dir, 'no_small_labels.txt')
 with open(labels_file_path, 'w') as f:
     for i, label in enumerate(labels):
         f.write(f"{i}: {label}\n")

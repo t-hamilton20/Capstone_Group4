@@ -1,7 +1,8 @@
-annotations = 'data/Complete/no_small/sign_annotation.txt'
-signs = 'data/Complete/no_small/labels.txt'
-new_annotations = 'data/Complete/no_small/new_sign_annotation.txt'
-new_signs = 'data/Complete/no_small/new_labels.txt'
+annotations = 'data/Complete/eight_x/sign_annotation.txt'
+signs = 'data/Complete/eight_x/labels.txt'
+new_annotations = 'data/Complete/eight_x/new_sign_annotation.txt'
+new_signs = 'data/Complete/eight_x/new_labels.txt'
+num_classes_to_remove = 50
 
 # Define dictionaries to store class counts and class names
 class_counts = {}
@@ -31,7 +32,7 @@ with open(annotations, 'r') as file:
 sorted_class_counts = sorted(class_counts.items(), key=lambda x: x[1], reverse=True)
 
 # Identify the 50 classes to be removed
-classes_to_remove = [class_number for class_number, _ in sorted_class_counts[-50:]]
+classes_to_remove = [class_number for class_number, _ in sorted_class_counts[-num_classes_to_remove:]]
 
 # Create a new dictionary excluding the 50 classes to be removed
 filtered_class_names = {class_number: class_names[class_number] for class_number in class_names if class_number not in classes_to_remove}
@@ -54,7 +55,7 @@ with open(new_signs, 'w') as new_signs_file:
         new_signs_file.write(f'{new_class_number}: {class_name}\n')
 
 # Print information about the remaining classes
-print(f"Remaining classes after removing the lowest occurring 50 classes:")
+print(f"Remaining classes after removing the lowest occurring {num_classes_to_remove} classes:")
 for new_class_number, class_name in enumerate(filtered_class_names.values()):
     print(f'Class {new_class_number}: {class_name}')
 

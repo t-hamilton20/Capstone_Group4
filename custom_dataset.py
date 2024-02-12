@@ -11,7 +11,7 @@ class SignDataset(Dataset):
 
         # Define the folder based on the 'train' parameter
         if self.train:
-            self.folder = 'four_x'
+            self.folder = 'eight_x'
         else:
             self.folder = 'val/extracted'
 

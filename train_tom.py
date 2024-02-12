@@ -50,7 +50,7 @@ def calculate_class_weights(train_loader, num_classes):
     class_weights = total_samples / (num_classes * class_counts)
     return class_weights
 
-num_classes = 400
+num_classes = 350
 
 def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, scheduler, device):
     print(f"Starting training at: {datetime.datetime.now()}")
@@ -58,8 +58,8 @@ def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, schedul
     losses_train = []
     losses_val = []
 
-    class_weights = calculate_class_weights(train_loader, num_classes)
-    class_weights = class_weights.to(device)
+    # class_weights = calculate_class_weights(train_loader, num_classes)
+    # class_weights = class_weights.to(device)
 
     for epoch in range(1, n_epochs + 1):
         model.train()
@@ -122,6 +122,7 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=args.b, shuffle=True
 val_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
 
 model = CustomNetwork(None, None)
+# model.load_state_dict(torch.load('data/models/intermediates/11_no_small.pth'))
 model.train()
 model.to(device)
 # print(torchsummary.summary(model, batch_size=args.b, input_size=(3, 224, 224)))

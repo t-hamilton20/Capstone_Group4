@@ -19,9 +19,10 @@ step_x = 3 # number of times the sliding window moves in the x direction
 step_y = 3 # number of times the sliding window moves in the y direction
 # Increase in number of images will be step_x*step_y, ex: for 2 and 2, a 4x increase in images
 
-def extract_images(raw_images_dir, annotations_dir, output_dir, class_names_file, sliding_window_step, min_image_size, step_x, step_y):
+def extract_images(raw_images_dir, annotations_dir, output_dir, output_class_names_file, sliding_window_step, min_image_size, step_x, step_y, preexisting_class_names_file):
     # to disable the sliding window functionality, set sliding_window_step, step_x, and step_y to 0
     # to disable the minimum image size check, set min_image_size to 0
+    # to disable preexisting class names, set preexisting_class_names_file to ''
 
     # Create a subfolder for extracted images if it doesn't exist
     if not os.path.exists(output_dir):
@@ -33,6 +34,9 @@ def extract_images(raw_images_dir, annotations_dir, output_dir, class_names_file
 
     class_names = []
     skipped_counter = 0
+
+    if preexisting_class_names_file:
+        class_names = read_class_names(preexisting_class_names_file)
 
     # Save sign annotations to a .txt file in the annotations subfolder
     annotation_file_path = os.path.join(output_dir, 'annotations.txt')
@@ -67,7 +71,7 @@ def extract_images(raw_images_dir, annotations_dir, output_dir, class_names_file
                 if label == 'other-sign': # skip over other-sign signs
                     continue 
 
-                if label not in class_names:
+                if label not in class_names and not preexisting_class_names_file:
                     class_names.append(label)
 
                 xminTemp, yminTemp, ymaxTemp, xmaxTemp = bbox['xmin'], bbox['ymin'], bbox['ymax'], bbox['xmax']
@@ -113,10 +117,21 @@ def extract_images(raw_images_dir, annotations_dir, output_dir, class_names_file
                     extracted_region.save(extracted_image_path)
 
 
-    labels_file_path = os.path.join(output_dir, class_names_file)
-    with open(labels_file_path, 'w') as f:
+    classes_file_path = os.path.join(output_dir, output_class_names_file)
+    with open(classes_file_path, 'w') as f:
         for i, label in enumerate(class_names):
             f.write(f"{i}: {label}\n")
         f.close()
 
     print(f"Number of skipped images: {skipped_counter}")
+
+
+def read_class_names(class_names_file):
+    # Read labels from the preexisting file
+    class_names = []
+    with open(class_names_file, 'r') as file:
+        for line in file:
+            label = line.strip().split(': ')[1]
+            class_names.append(label)
+
+    return class_names

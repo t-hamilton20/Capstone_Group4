@@ -5,12 +5,13 @@ from torchvision import transforms
 from custom_dataset import SignDataset
 from torch.utils.data import DataLoader
 from preprocessing.data_augmentation import read_class_names
+from attack_module.attack import attack
 
 def test_transform():
     transform_list = [
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0, 0, 0], std=[0.5, 0.5, 0.5])
+        #transforms.Normalize(mean=[0, 0, 0], std=[0.5, 0.5, 0.5])
     ]
     return transforms.Compose(transform_list)
 
@@ -18,7 +19,7 @@ def test_transform():
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Arguments to pass to the train module')
     parser.add_argument('-cuda', type=str, default='cuda:1', help='device')
-    parser.add_argument('-s', type=str, default='encoder.pth', help='weight path')
+    parser.add_argument('-s', type=str, default='./data/models/mapillary_9_times_all_classes.pth', help='weight path')
     parser.add_argument('-b', type=int, default=512, help='batch size')
 
     argsUsed = parser.parse_args()
@@ -42,10 +43,11 @@ if __name__ == "__main__":
     correct_top5 = 0
     total = 0
 
-    classes = read_class_names('./../data/Complete/augmented_9_no_small/class_names.txt')
+    classes = read_class_names('./data/Extracted_Images/test/labels.txt')
 
     with torch.no_grad():
         for img, labels in test_loader:
+            #img = attack(img, True, True)
             outputs = model(img)
             _, predicted = torch.max(outputs.data, 1)
             # print(f"Predicted: {classes[predicted[0]]}, Label: {classes[labels[0]]}")

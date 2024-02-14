@@ -11,9 +11,9 @@ class SignDataset(Dataset):
 
         # Define the folder based on the 'train' parameter
         if self.train:
-            self.folder = 'augmented_9_no_small'
+            self.folder = 'train'
         else:
-            self.folder = 'val/extracted'
+            self.folder = 'test'
         
         print(f"Using dataset located at {self.folder}")
 
@@ -24,7 +24,7 @@ class SignDataset(Dataset):
         image_files = []
         labels = []
 
-        label_file = os.path.join(self.root_dir, self.folder, f'annotations.txt')
+        label_file = os.path.join(self.root_dir, self.folder, f'sign_annotation.txt')
 
         with open(label_file, 'r') as file:
             for line in file:

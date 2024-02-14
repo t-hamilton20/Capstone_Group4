@@ -7,7 +7,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from custom_dataset import SignDataset
 from model import EncoderAndClassifier, CustomNetwork
-import torchsummary
+# import torchsummary
 
 
 def parse_arguments():
@@ -29,7 +29,7 @@ def train_transform():
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
         # transforms.CenterCrop((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        transforms.Normalize(mean=[0, 0, 0], std=[0.5, 0.5, 0.5])
     ]
     return transforms.Compose(transform_list)
 
@@ -39,11 +39,27 @@ test_transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
+def calculate_class_weights(train_loader, num_classes):
+    class_counts = torch.zeros(num_classes)
+    total_samples = 0
+
+    for _, labels in train_loader:
+        class_counts += torch.bincount(labels, minlength=num_classes)
+        total_samples += len(labels)
+
+    class_weights = total_samples / (num_classes * class_counts)
+    return class_weights
+
+num_classes = 350
+
 def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, scheduler, device):
     print(f"Starting training at: {datetime.datetime.now()}")
 
     losses_train = []
     losses_val = []
+
+    # class_weights = calculate_class_weights(train_loader, num_classes)
+    # class_weights = class_weights.to(device)
 
     for epoch in range(1, n_epochs + 1):
         model.train()
@@ -55,6 +71,7 @@ def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, schedul
             optimizer.zero_grad()
             outputs = model(img)
             loss = loss_fn(outputs, labels)
+            # loss = torch.nn.functional.cross_entropy(outputs, labels, weight=class_weights)
             loss.backward()
             optimizer.step()
             loss_train += loss.item()
@@ -105,6 +122,7 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=args.b, shuffle=True
 val_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
 
 model = CustomNetwork(None, None)
+# model.load_state_dict(torch.load('data/models/intermediates/11_no_small.pth'))
 model.train()
 model.to(device)
 # print(torchsummary.summary(model, batch_size=args.b, input_size=(3, 224, 224)))

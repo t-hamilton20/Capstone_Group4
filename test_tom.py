@@ -4,12 +4,13 @@ from model import EncoderAndClassifier, CustomNetwork
 from torchvision import transforms
 from custom_dataset import SignDataset
 from torch.utils.data import DataLoader
+from preprocessing.data_augmentation import read_class_names
 
 def test_transform():
     transform_list = [
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        transforms.Normalize(mean=[0, 0, 0], std=[0.5, 0.5, 0.5])
     ]
     return transforms.Compose(transform_list)
 
@@ -41,10 +42,13 @@ if __name__ == "__main__":
     correct_top5 = 0
     total = 0
 
+    classes = read_class_names('./../data/Complete/augmented_9_no_small/class_names.txt')
+
     with torch.no_grad():
         for img, labels in test_loader:
             outputs = model(img)
             _, predicted = torch.max(outputs.data, 1)
+            # print(f"Predicted: {classes[predicted[0]]}, Label: {classes[labels[0]]}")
             total += labels.size(0)
             correct_top1 += (predicted == labels).sum().item()
 

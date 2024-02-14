@@ -26,7 +26,7 @@ class EncoderAndClassifier:
         nn.Linear(num_features//2, num_features//4),
         nn.BatchNorm1d(num_features//4),
         nn.ReLU(),
-        nn.Linear(num_features//4, 350)
+        nn.Linear(num_features//4, 400)
     )
     
 class CustomNetwork(nn.Module):

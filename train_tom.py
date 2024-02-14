@@ -7,7 +7,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from custom_dataset import SignDataset
 from model import EncoderAndClassifier, CustomNetwork
-import torchsummary
+# import torchsummary
 
 
 def parse_arguments():

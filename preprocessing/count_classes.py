@@ -64,4 +64,5 @@ def compare_classes(class_names_file, class_names_to_compare):
 annotations_file = 'data/Complete/augmented_9_no_small/annotations.txt'
 class_names_file = 'data/Complete/augmented_9_no_small/class_names.txt'
 class_names = count_classes(annotations_file, class_names_file)
-
+val_classes_file = 'data/Complete/val/extracted/class_names.txt'
+compare_classes(val_classes_file, class_names)

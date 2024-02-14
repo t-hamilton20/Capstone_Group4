@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     args = parse_arguments()
 
-    root_dir = "../data/Complete/"
+    root_dir = "./data/Extracted_Images/"
 
     test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform())
     test_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)

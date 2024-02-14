@@ -1,2 +1,7 @@
 *.pth
 *.png
+*.zip
+data/OG_Data/
+data/Sign_Dataset/
+data/Extracted_Images_old/
+data/Extracted_Images/

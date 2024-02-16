@@ -50,7 +50,7 @@ def calculate_class_weights(train_loader, num_classes):
     class_weights = total_samples / (num_classes * class_counts)
     return class_weights
 
-num_classes = 350
+num_classes = 400
 
 def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, scheduler, device):
     print(f"Starting training at: {datetime.datetime.now()}")

@@ -1,3 +1,4 @@
 weights_file : dataset | augmentation | num_epochs | batch_size | lr | model_modifications
 
 mapillary_9_times_all_classes.pth : mapillary | 9 times augmentation, all classes | 40 | 512 | 0.00001 | resnet18 pretrained with batch norms
+mapillary_resnet50_9_times_all_classes.pth : mapillary | 9 times augmentation, all classes | 40 | 512 | 0.00001 | resnet50 pretrained with batch norms

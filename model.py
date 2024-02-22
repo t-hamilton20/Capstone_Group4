@@ -16,9 +16,9 @@ class ResnetLocal(nn.Module):
     
 
 class EncoderAndClassifier:
-    # encoder = nn.Sequential(*list(resnet18(weights=ResNet18_Weights.IMAGENET1K_V1).children())[:-1])
-    encoder = nn.Sequential(*list(resnet50(weights=ResNet50_Weights.IMAGENET1K_V1).children())[:-1])
-    num_features = resnet50().fc.in_features
+    encoder = nn.Sequential(*list(resnet18(weights=ResNet18_Weights.IMAGENET1K_V1).children())[:-1])
+    # encoder = nn.Sequential(*list(resnet50(weights=ResNet50_Weights.IMAGENET1K_V1).children())[:-1])
+    num_features = resnet18().fc.in_features
     simple_classification = nn.Sequential(
         nn.Flatten(),
         nn.Linear(num_features, num_features//2),
@@ -28,6 +28,7 @@ class EncoderAndClassifier:
         nn.BatchNorm1d(num_features//4),
         nn.ReLU(),
         nn.Linear(num_features//4, 400)
+        # nn.Linear(num_features, 400)
     )
     
 class CustomNetwork(nn.Module):

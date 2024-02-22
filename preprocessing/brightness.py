@@ -47,7 +47,7 @@ def generate_all_brightnesses(image_path):
     directory_path = os.path.dirname(image_path)
 
     if brightness_category == 0:
-    # Dark -> Bright
+    # # Dark -> Bright
         brightened_image = adjust_brightness(image_path, 1.5)
         new_file_name = file_name_without_extension + "_bright" + file_extension
         new_file_path = os.path.join(directory_path, new_file_name)

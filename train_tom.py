@@ -7,6 +7,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from custom_dataset import SignDataset
 from model import EncoderAndClassifier, CustomNetwork
+from tqdm import tqdm
 # import torchsummary
 
 
@@ -65,7 +66,7 @@ def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, schedul
         model.train()
         loss_train = 0.0
         
-        for img, labels in train_loader:
+        for img, labels in tqdm(train_loader, desc=f'Epoch {epoch}/{n_epochs}', leave=False):
             img = img.to(device=device)
             labels = labels.to(device=device)
             optimizer.zero_grad()

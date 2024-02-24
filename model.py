@@ -17,6 +17,7 @@ class ResnetLocal(nn.Module):
 
 class EncoderAndClassifier:
     encoder = nn.Sequential(*list(resnet18(weights=ResNet18_Weights.IMAGENET1K_V1).children())[:-1])
+    encoder.out_channels = resnet18().fc.in_features
     # encoder = nn.Sequential(*list(resnet50(weights=ResNet50_Weights.IMAGENET1K_V1).children())[:-1])
     num_features = resnet18().fc.in_features
     simple_classification = nn.Sequential(
@@ -35,6 +36,8 @@ class CustomNetwork(nn.Module):
     def __init__(self, encoder, classification):
         super(CustomNetwork, self).__init__()
 
+        self.out_channels = 400
+        
         self.encoder = encoder
         if self.encoder is None:
             self.encoder = EncoderAndClassifier.encoder

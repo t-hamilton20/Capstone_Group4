@@ -5,6 +5,7 @@ from torchvision import transforms
 from custom_dataset import SignDataset
 from torch.utils.data import DataLoader
 from preprocessing.data_augmentation import read_class_names
+from preprocessing import brightness
 
 def test_transform():
     transform_list = [

@@ -9,10 +9,10 @@ import json
 import os
 from PIL import Image
 
-raw_images_dir = 'data/Complete/Images/'
-annotations_dir = 'data/Complete/mtsd_v2_fully_annotated/annotations'
+raw_images_dir = 'data/Complete/train/'
+annotations_dir = 'data/Complete/annotations'
 output_dir = 'data/Complete/augmented_8_no_small/'
-class_names_file = 'class_names.txt'
+class_names_file = 'data/class_names.txt'
 sliding_window_step = 5 # number of pixels the sliding window moves each step
 min_image_size = 50 # minimum height and width of image
 step_x = 3 # number of times the sliding window moves in the x direction
@@ -135,3 +135,5 @@ def read_class_names(class_names_file):
             class_names.append(label)
 
     return class_names
+
+extract_images(raw_images_dir, annotations_dir, output_dir, class_names_file, sliding_window_step, min_image_size,step_x, step_y, class_names_file)

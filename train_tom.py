@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from custom_dataset import SignDataset
-from model import EncoderAndClassifier, CustomNetwork
+from model import EncoderAndClassifier, CustomNetwork, Encoder
 # import torchsummary
 
 
@@ -121,7 +121,10 @@ test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transf
 train_loader = DataLoader(dataset=train_dataset, batch_size=args.b, shuffle=True)
 val_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
 
-model = CustomNetwork(None, None)
+encoder = Encoder()
+encoder.load_pretrained_weights('./data/encoder.pth')
+
+model = CustomNetwork(encoder, None)
 # model.load_state_dict(torch.load('data/models/intermediates/11_no_small.pth'))
 model.train()
 model.to(device)

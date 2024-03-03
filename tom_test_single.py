@@ -28,7 +28,7 @@ def parse_arguments():
 if __name__ == "__main__":
     args = parse_arguments()
 
-    root_dir = "./data/Extracted_Images/"
+    root_dir = "./data/Extracted/"
 
     # Load the dataset without using DataLoader
     test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform())
@@ -36,13 +36,13 @@ if __name__ == "__main__":
     # Select a single image by index
     img, label = test_dataset[args.i]  # args.i is the image index
     img = img.unsqueeze(0)  # Add batch dimension
-    img = attack(img, True, True, False, True)
+    img = attack('cpu', img, False, False, False, False, True)
 
     model = CustomNetwork(None, None)
     model.load_state_dict(torch.load(args.s))
     model.eval()
 
-    classes = read_class_names('./data/Extracted_Images/test/labels.txt')
+    classes = read_class_names('./data/Extracted/test/class_names.txt')
 
     with torch.no_grad():
         outputs = model(img)

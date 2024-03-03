@@ -5,3 +5,6 @@ data/OG_Data/
 data/Sign_Dataset/
 data/Extracted_Images_old/
 data/Extracted_Images/
+data/Extracted/
+data/Complete/
+preprocessing/data

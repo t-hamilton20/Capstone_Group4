@@ -3,7 +3,8 @@ import torch
 import numpy as np
 import cv2
 
-def attack(batch_tensor, add_rects: bool, rotate_imgs: bool, fish_img: bool, dented: bool):
+
+def attack(device, batch_tensor, add_rects: bool, rotate_imgs: bool, fish_img: bool, dented: bool, noisy: bool):
     batch_np = batch_tensor.cpu().numpy()
     batch_np = np.transpose(batch_np, (0, 2, 3, 1))
 
@@ -12,18 +13,23 @@ def attack(batch_tensor, add_rects: bool, rotate_imgs: bool, fish_img: bool, den
         if dented:
             img_np = apply_dent(img_np)
         if add_rects:
-            img_np = add_rectangles(img_np, width=random.randint(20, 100), height=random.randint(20, 100), num_rectangles=1, color=(255, 255, 255))
+            img_np = add_rectangles(img_np, width=random.randint(5, 60), height=random.randint(5, 60),
+                                    num_rectangles=1, color=(0, 0, 0))
         if rotate_imgs:
             img_np = rotate_images(img_np)
         if fish_img:
             img_np = apply_fisheye(img_np)
+        if noisy:
+            img_np = apply_noise(img_np)
 
         processed_batch.append(img_np)
 
     # Convert the processed batch back to tensor
     processed_batch_np = np.array(processed_batch)
     processed_batch_np = np.transpose(processed_batch_np, (0, 3, 1, 2))
-    return torch.from_numpy(processed_batch_np)
+    processed_tensor = torch.from_numpy(processed_batch_np).to(device)  # Ensure tensor is on the correct device
+    return processed_tensor
+
 
 
 def add_rectangles(in_img_np, width: int, height: int, num_rectangles: int = 1, color: tuple = (0, 0, 0)):
@@ -39,9 +45,9 @@ def add_rectangles(in_img_np, width: int, height: int, num_rectangles: int = 1, 
     return image
 
 
-def rotate_images(in_img, max_degrees: int = 355, min_degrees: int = 1):
+def rotate_images(in_img, max_degrees: int = 90, min_degrees: int = 1):
     image = in_img
-    image = cv2.resize(image, (1024, 1024))
+    image = cv2.resize(image, (224, 224))
     image_height, image_width, _ = image.shape
 
     degrees = random.randint(min_degrees, max_degrees)
@@ -51,7 +57,7 @@ def rotate_images(in_img, max_degrees: int = 355, min_degrees: int = 1):
     return rotated_image
 
 
-def apply_fisheye(in_img_np, distortion_strength = 0.5):
+def apply_fisheye(in_img_np, distortion_strength=0.5):
     image_np = cv2.resize(in_img_np, (224, 224))
     height, width, _ = image_np.shape
     # Create a map for the distortion
@@ -119,3 +125,12 @@ def apply_dent(image_np, dent_strength=0.8, dent_radius=50, dent_center=None):
     distorted_image = cv2.remap(image_np, map_x, map_y, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
 
     return distorted_image
+
+
+def apply_noise(image_np):
+    std_dev = 0.075
+    gauss_noise = np.random.randn(*image_np.shape) * std_dev
+    gauss_noise = gauss_noise.astype(image_np.dtype)
+    gn_img = cv2.add(image_np, gauss_noise)
+
+    return gn_img

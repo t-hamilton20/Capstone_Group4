@@ -113,7 +113,7 @@ if args.cuda == 0:
     device = 'cpu'
 print(f'Device: {device}')
 
-root_dir = "../data/Complete/"
+root_dir = "./data/Extracted/"
 
 train_dataset = SignDataset(root_dir=root_dir, train=True, transform=train_transform())
 test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform)

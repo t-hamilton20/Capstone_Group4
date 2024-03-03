@@ -24,7 +24,7 @@ class SignDataset(Dataset):
         image_files = []
         labels = []
 
-        label_file = os.path.join(self.root_dir, self.folder, f'sign_annotation.txt')
+        label_file = os.path.join(self.root_dir, self.folder, f'annotations.txt')
 
         with open(label_file, 'r') as file:
             for line in file:

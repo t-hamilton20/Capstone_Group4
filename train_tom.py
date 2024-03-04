@@ -106,10 +106,10 @@ def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, schedul
         plt.plot(losses_train, label='Training Loss')
         plt.plot(losses_val, label='Validation Loss')
         plt.legend()
-        plt.savefig("data/loss_plots/" + args.p)
+        plt.savefig(plot_path)
         plt.clf()
 
-        filepath = os.path.join('data/models/intermediates', f"{epoch}_{args.s}")
+        filepath = os.path.join('data/models/intermediates', f"{epoch}_weights_Res50_Test.pth")
         torch.save(model.state_dict(), filepath)
 
 def main():

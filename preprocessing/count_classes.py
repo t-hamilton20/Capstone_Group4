@@ -62,7 +62,7 @@ def compare_classes(class_names_file, class_names_to_compare):
             print("matching")
 
 annotations_file = 'data/Complete/annotations.txt'
-class_names_file = 'data/Complete/class_names.txt'
+class_names_file = 'data/class_names.txt'
 class_names = count_classes(annotations_file, class_names_file)
-val_classes_file = 'data/Complete/class_names.txt'
+val_classes_file = 'data/val_class_names.txt'
 compare_classes(val_classes_file, class_names)

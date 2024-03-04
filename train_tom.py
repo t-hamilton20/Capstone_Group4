@@ -57,7 +57,7 @@ def calculate_class_weights(train_loader, num_classes):
 num_classes = 350
 
 
-def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, scheduler, device):
+def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, scheduler, device, plot_path):
     print(f"Starting training at: {datetime.datetime.now()}")
 
     losses_train = []
@@ -122,6 +122,7 @@ def main():
     print(f'Device: {device}')
 
     root_dir = "./data/Extracted/"
+    plot_path = "data/loss_plots/" + args.p
 
     train_dataset = SignDataset(root_dir=root_dir, train=True, transform=train_transform())
     test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform)
@@ -139,7 +140,7 @@ def main():
     loss_fn = torch.nn.CrossEntropyLoss()
 
     train(n_epochs=args.e, optimizer=opt, model=model, scheduler=sched, loss_fn=loss_fn, device=device,
-          train_loader=train_loader, val_loader=val_loader)
+          train_loader=train_loader, val_loader=val_loader, plot_path=plot_path)
     model_dir = "data/models/" + args.s
     model_state_dict = model.state_dict()
     torch.save(model_state_dict, model_dir)

@@ -2,7 +2,7 @@ import sys
 import numpy as np
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QFileDialog, QCheckBox
-from PyQt5.QtGui import QPixmap, QImage, QColor
+from PyQt5.QtGui import QPixmap, QImage, QColor, QFont
 from attack import attack
 import torch
 
@@ -17,7 +17,7 @@ class App(QWidget):
         self.title_label = QLabel("Physical Attacks Demo", self)
         self.title_label.setAlignment(Qt.AlignCenter)
         font = self.title_label.font()
-        font.setPointSize(20)
+        font.setPointSize(28)
         self.title_label.setFont(font)
 
         # Subtitle
@@ -35,13 +35,30 @@ class App(QWidget):
         self.checkbox4 = QCheckBox('Dent', self)
         self.checkbox5 = QCheckBox('Random Noise', self)
 
+        # Font Styling
+        checkbox_font = self.checkbox1.font()
+        checkbox_font.setPointSize(16)
+        self.checkbox1.setFont(checkbox_font)
+        self.checkbox2.setFont(checkbox_font)
+        self.checkbox3.setFont(checkbox_font)
+        self.checkbox4.setFont(checkbox_font)
+        self.checkbox5.setFont(checkbox_font)
+
         # Attack button
         self.attack_button = QPushButton('Attack!', self)
         self.attack_button.clicked.connect(self.perform_attack)
 
+
         # Test Image button
         self.test_image_button = QPushButton('Test Image', self)
         self.test_image_button.clicked.connect(self.test_image)
+
+        # Button font styling
+        button_font = self.upload_button.font()
+        button_font.setPointSize(16)
+        self.upload_button.setFont(button_font)
+        self.attack_button.setFont(button_font)
+        self.test_image_button.setFont(button_font)
 
         # Placeholder labels for top 5 predicted classes
         self.predicted_labels = [QLabel() for _ in range(5)]
@@ -127,9 +144,12 @@ class App(QWidget):
         # Placeholder function for testing image recognition model
         # Replace this function with actual testing logic
         # Display top 5 predicted classes as placeholders
-        predicted_classes = ["Stop Sign - 86%", "No Left Turn Sign - 10%", "Road Closed Sign - 2%", "Lane Ending Sign - 1%", "Speed Limit Sign - 1%"]
+        font = QFont()
+        font.setPointSize(16)
+        predicted_classes = ["Road Work Sign - 61%", "Yield Sign - 24%", "Stop Sign - 10%", "Bicycle Sign - 3%", "Dead End Sign - 2%"]
         for label, predicted_class in zip(self.predicted_labels, predicted_classes):
             label.setText(predicted_class)
+            label.setFont(font)
 
 
 if __name__ == '__main__':

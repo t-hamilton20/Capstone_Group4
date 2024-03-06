@@ -1,1 +1,1 @@
-python train_tom.py -e 40 -b 512 -lr 0.0001 -s mapillary_resnet50_all_classes_brightness.pth -p mapillary_resnet50_all_classes_brightness.png -cuda 1   
+python train_tom.py -e 40 -b 512 -lr 0.00001 -s mapillary_vgg_all_classes_brightness.pth -p mapillary_vgg_all_classes_brightness.png -cuda 1   

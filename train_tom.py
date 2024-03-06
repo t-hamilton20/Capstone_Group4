@@ -123,9 +123,11 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=args.b, shuffle=True
 val_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
 
 model = CustomNetwork(None, None)
-# model.load_state_dict(torch.load('data/models/intermediates/11_no_small.pth'))
+# model.load_state_dict(torch.load('data/models/intermediates/10_mapillary_resnet50_all_classes_brightness.pth'))
 model.train()
 model.to(device)
+print(torch.cuda.memory_summary())
+
 # print(torchsummary.summary(model, batch_size=args.b, input_size=(3, 224, 224)))
 
 lr = args.lr

@@ -20,7 +20,7 @@ def test_transform():
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Arguments to pass to the train module')
     parser.add_argument('-cuda', type=str, default='cuda', help='device')
-    parser.add_argument('-s', type=str, default='./data/models/mapillary_9_times_all_classes.pth', help='weight path')
+    parser.add_argument('-s', type=str, default='./data/models/30_mapillary_resnet50_all_classes_brightness.pth', help='weight path')
     parser.add_argument('-b', type=int, default=1, help='batch size')
 
     argsUsed = parser.parse_args()
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         for img, labels in test_loader:
             img = img.to(device)
             labels = labels.to(device)
-            img = attack(device, img, False, False, False, False, False)
+            img = attack(device, img, False, True, False, True, True)
             outputs = model(img)
             _, predicted = torch.max(outputs.data, 1)
             # print(f"Predicted: {classes[predicted[0]]}, Label: {classes[labels[0]]}")

@@ -13,8 +13,8 @@ def attack(device, batch_tensor, add_rects: bool, rotate_imgs: bool, fish_img: b
         if dented:
             img_np = apply_dent(img_np)
         if add_rects:
-            img_np = add_rectangles(img_np, width=random.randint(5, 60), height=random.randint(5, 60),
-                                    num_rectangles=1, color=(0, 0, 0))
+            img_np = add_rectangles(img_np, width=random.randint(20, 100), height=random.randint(20, 100),
+                                    num_rectangles=1)
         if rotate_imgs:
             img_np = rotate_images(img_np)
         if fish_img:
@@ -32,7 +32,11 @@ def attack(device, batch_tensor, add_rects: bool, rotate_imgs: bool, fish_img: b
 
 
 
-def add_rectangles(in_img_np, width: int, height: int, num_rectangles: int = 1, color: tuple = (0, 0, 0)):
+def add_rectangles(in_img_np, width: int, height: int, num_rectangles: int = 1):
+    #BLACK
+    color = (256, 256, 256)
+    #WHITE
+    #color = (1, 1, 1)
     # in_img_np is now expected to be a numpy array
     image = cv2.resize(in_img_np, (224, 224))
     image_height, image_width, _ = image.shape

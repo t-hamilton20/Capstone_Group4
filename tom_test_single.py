@@ -19,7 +19,7 @@ def test_transform():
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Arguments to pass to the test module')
     parser.add_argument('-cuda', type=str, default='cuda:1', help='device')
-    parser.add_argument('-s', type=str, default='./data/models/mapillary_9_times_all_classes.pth', help='weight path')
+    parser.add_argument('-s', type=str, default='./data/models/30_mapillary_resnet50_all_classes_brightness.pth', help='weight path')
     parser.add_argument('-i', type=int, default=598, help='image index to test')
 
     argsUsed = parser.parse_args()
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # Select a single image by index
     img, label = test_dataset[args.i]  # args.i is the image index
     img = img.unsqueeze(0)  # Add batch dimension
-    img = attack('cpu', img, False, False, False, False, True)
+    img = attack('cpu', img, True, False, False, False, False)
 
     model = CustomNetwork(None, None)
     model.load_state_dict(torch.load(args.s))

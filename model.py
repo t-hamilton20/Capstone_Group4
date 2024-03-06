@@ -14,6 +14,7 @@ class ResnetLocal(nn.Module):
     def forward(self, x):
         return self.resnet(x)
 
+#TRY LAYERNORM + TANH ACTIVE FN
 
 class EncoderAndClassifier:
     # encoder = nn.Sequential(*list(resnet18(weights=ResNet18_Weights.IMAGENET1K_V1).children())[:-1])

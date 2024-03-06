@@ -29,14 +29,22 @@ class App(QWidget):
         self.upload_button.clicked.connect(self.open_file_dialog)
 
         # Attack Checkboxes
-        self.checkbox1 = QCheckBox('Black Boxes', self)
+        self.checkbox1 = QCheckBox('White Boxes', self)
         self.checkbox2 = QCheckBox('Rotate', self)
         self.checkbox3 = QCheckBox('Fisheye', self)
         self.checkbox4 = QCheckBox('Dent', self)
+        self.checkbox5 = QCheckBox('Random Noise', self)
 
         # Attack button
         self.attack_button = QPushButton('Attack!', self)
         self.attack_button.clicked.connect(self.perform_attack)
+
+        # Test Image button
+        self.test_image_button = QPushButton('Test Image', self)
+        self.test_image_button.clicked.connect(self.test_image)
+
+        # Placeholder labels for top 5 predicted classes
+        self.predicted_labels = [QLabel() for _ in range(5)]
 
         # Layout for the left section
         left_layout = QVBoxLayout()
@@ -47,7 +55,12 @@ class App(QWidget):
         left_layout.addWidget(self.checkbox2)
         left_layout.addWidget(self.checkbox3)
         left_layout.addWidget(self.checkbox4)
+        left_layout.addWidget(self.checkbox5)
         left_layout.addWidget(self.attack_button)
+        left_layout.addWidget(self.test_image_button)
+        left_layout.addWidget(QLabel("Top 5 Predicted Classes:"))
+        for label in self.predicted_labels:
+            left_layout.addWidget(label)
         left_layout.addStretch(1)
 
         # Layout for the right section
@@ -73,35 +86,32 @@ class App(QWidget):
             self.image_label.setPixmap(pixmap)
             self.image_label.setScaledContents(True)
 
-
     def perform_attack(self):
+        # Extracting values from checkboxes
         attacks = [self.checkbox1.isChecked(), self.checkbox2.isChecked(), self.checkbox3.isChecked(),
                    self.checkbox4.isChecked()]
+        noisy = self.checkbox5.isChecked()  # Checkbox for Random Noise
+        rotate_imgs = self.checkbox2.isChecked()  # Checkbox for Rotate
+        fish_img = self.checkbox3.isChecked()  # Checkbox for Fisheye
+        dented = self.checkbox4.isChecked()  # Checkbox for Dent
+        add_rects = False  # Assuming add_rects is False by default
+
+        # Convert QPixmap to NumPy array
         pixmap = self.image_label.pixmap()
         image = pixmap.toImage()
-
-        # Convert QImage to RGB888 format
         image = image.convertToFormat(QImage.Format_RGB888)
-
-        # Get image dimensions
         width = image.width()
         height = image.height()
-
-        # Initialize a NumPy array to hold pixel data
-        image_np = np.zeros((height, width, 3), dtype=np.uint8)
-
-        # Copy pixel data from QImage to NumPy array
-        for y in range(height):
-            for x in range(width):
-                pixel = image.pixel(x, y)
-                rgb_value = QColor(pixel).getRgb()
-                image_np[y, x] = rgb_value[:3]  # Exclude alpha channel
+        ptr = image.bits()
+        ptr.setsize(image.byteCount())
+        image_np = np.array(ptr).reshape(height, width, 3)
 
         # Convert NumPy array to PyTorch tensor
         image_tensor = torch.from_numpy(image_np).permute(2, 0, 1).unsqueeze(0).float() / 255.0
 
-        # Call the attack function
-        attacked_image_tensor = attack(image_tensor, *attacks)
+        # Call the attack function with dynamically determined values
+        attacked_image_tensor = attack(torch.device('cpu'), image_tensor, add_rects, rotate_imgs, fish_img, dented,
+                                       noisy)
 
         # Convert PyTorch tensor back to NumPy array
         attacked_image_np = attacked_image_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy() * 255.0
@@ -109,8 +119,18 @@ class App(QWidget):
 
         # Convert NumPy array to QPixmap and display
         attacked_image_pixmap = QPixmap.fromImage(
-            QImage(attacked_image_np.data, attacked_image_np.shape[1], attacked_image_np.shape[0], QImage.Format_RGB888))
+            QImage(attacked_image_np.data, attacked_image_np.shape[1], attacked_image_np.shape[0],
+                   QImage.Format_RGB888))
         self.image_label.setPixmap(attacked_image_pixmap)
+
+    def test_image(self):
+        # Placeholder function for testing image recognition model
+        # Replace this function with actual testing logic
+        # Display top 5 predicted classes as placeholders
+        predicted_classes = ["Stop Sign - 86%", "No Left Turn Sign - 10%", "Road Closed Sign - 2%", "Lane Ending Sign - 1%", "Speed Limit Sign - 1%"]
+        for label, predicted_class in zip(self.predicted_labels, predicted_classes):
+            label.setText(predicted_class)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

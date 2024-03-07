@@ -54,7 +54,7 @@ if __name__ == "__main__":
         for img, labels in test_loader:
             img = img.to(device)
             labels = labels.to(device)
-            img = attack(device, img, False, True, False, False, False)
+            img = attack(device, img, True, True, True, True, True)
             outputs = model(img)
             _, predicted = torch.max(outputs.data, 1)
             # print(f"Predicted: {classes[predicted[0]]}, Label: {classes[labels[0]]}")

@@ -9,7 +9,7 @@ Uses brightness module to generate dark or bright images
 import json
 import os
 from PIL import Image
-from brightness import generate_all_brightnesses
+from .brightness import generate_all_brightnesses
 
 raw_images_dir = 'data/Complete/Images/'
 annotations_dir = 'data/Complete/mtsd_v2_fully_annotated/annotations'

@@ -123,10 +123,21 @@ class App(QWidget):
         pixmap = self.image_label.pixmap()
         image = pixmap.toImage()
         image = image.convertToFormat(QImage.Format_RGB888)
+
+        # Get image dimensions
         width = image.width()
         height = image.height()
+
+        # Check if image dimensions are valid
+        if width <= 0 or height <= 0:
+            print("Invalid image dimensions")
+            return
+
+        # Get raw pixel data from the image
         ptr = image.bits()
         ptr.setsize(image.byteCount())
+
+        # Convert raw pixel data to NumPy array
         image_np = np.array(ptr).reshape(height, width, 3)
 
         # Pass the image to the attack function
@@ -167,30 +178,18 @@ class App(QWidget):
 
     def attack_image(self, image_np):
         # Extracting values from checkboxes
-        attacks = [self.checkbox1.isChecked(), self.checkbox2.isChecked(), self.checkbox3.isChecked(),
-                   self.checkbox4.isChecked()]
-        noisy = self.checkbox5.isChecked()  # Checkbox for Random Noise
+        white_boxes_attack = self.checkbox1.isChecked()  # Checkbox for White Boxes
         rotate_imgs = self.checkbox2.isChecked()  # Checkbox for Rotate
         fish_img = self.checkbox3.isChecked()  # Checkbox for Fisheye
         dented = self.checkbox4.isChecked()  # Checkbox for Dent
-        add_rects = False  # Assuming add_rects is False by default
-
-        # Convert QPixmap to NumPy array
-        pixmap = self.image_label.pixmap()
-        image = pixmap.toImage()
-        image = image.convertToFormat(QImage.Format_RGB888)
-        width = image.width()
-        height = image.height()
-        ptr = image.bits()
-        ptr.setsize(image.byteCount())
-        image_np = np.array(ptr).reshape(height, width, 3)
+        noisy = self.checkbox5.isChecked()  # Checkbox for Random Noise
 
         # Convert NumPy array to PyTorch tensor
         image_tensor = torch.from_numpy(image_np).permute(2, 0, 1).unsqueeze(0).float() / 255.0
 
         # Call the attack function with dynamically determined values
-        attacked_image_tensor = attack(torch.device('cpu'), image_tensor, add_rects, rotate_imgs, fish_img, dented,
-                                       noisy)
+        attacked_image_tensor = attack(torch.device('cpu'), image_tensor, white_boxes_attack, rotate_imgs, fish_img,
+                                       dented, noisy)
 
         # Convert PyTorch tensor back to NumPy array
         attacked_image_np = attacked_image_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy() * 255.0
@@ -201,42 +200,6 @@ class App(QWidget):
             QImage(attacked_image_np.data, attacked_image_np.shape[1], attacked_image_np.shape[0],
                    QImage.Format_RGB888))
         self.image_label.setPixmap(attacked_image_pixmap)
-        def perform_attack(self):
-            # Extracting values from checkboxes
-            attacks = [self.checkbox1.isChecked(), self.checkbox2.isChecked(), self.checkbox3.isChecked(),
-                       self.checkbox4.isChecked()]
-            noisy = self.checkbox5.isChecked()  # Checkbox for Random Noise
-            rotate_imgs = self.checkbox2.isChecked()  # Checkbox for Rotate
-            fish_img = self.checkbox3.isChecked()  # Checkbox for Fisheye
-            dented = self.checkbox4.isChecked()  # Checkbox for Dent
-            add_rects = False  # Assuming add_rects is False by default
-
-            # Convert QPixmap to NumPy array
-            pixmap = self.image_label.pixmap()
-            image = pixmap.toImage()
-            image = image.convertToFormat(QImage.Format_RGB888)
-            width = image.width()
-            height = image.height()
-            ptr = image.bits()
-            ptr.setsize(image.byteCount())
-            image_np = np.array(ptr).reshape(height, width, 3)
-
-            # Convert NumPy array to PyTorch tensor
-            image_tensor = torch.from_numpy(image_np).permute(2, 0, 1).unsqueeze(0).float() / 255.0
-
-            # Call the attack function with dynamically determined values
-            attacked_image_tensor = attack(torch.device('cpu'), image_tensor, add_rects, rotate_imgs, fish_img, dented,
-                                           noisy)
-
-            # Convert PyTorch tensor back to NumPy array
-            attacked_image_np = attacked_image_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy() * 255.0
-            attacked_image_np = np.clip(attacked_image_np, 0, 255).astype(np.uint8)
-
-            # Convert NumPy array to QPixmap and display
-            attacked_image_pixmap = QPixmap.fromImage(
-                QImage(attacked_image_np.data, attacked_image_np.shape[1], attacked_image_np.shape[0],
-                       QImage.Format_RGB888))
-            self.image_label.setPixmap(attacked_image_pixmap)
 
     def parse_arguments(self):
         parser = argparse.ArgumentParser(description='Arguments to pass to the test module')

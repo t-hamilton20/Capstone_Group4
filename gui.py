@@ -11,6 +11,7 @@ from attack_module.attack import attack
 import torch
 from matplotlib import pyplot as plt
 import argparse
+import cv2
 
 
 class App(QWidget):
@@ -103,9 +104,24 @@ class App(QWidget):
     def open_file_dialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "", "All Files (*);;Python Files (*.py)", options=options)
+        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                  "All Files (*);;Python Files (*.py)", options=options)
         if fileName:
-            pixmap = QPixmap(fileName)
+            # Read the image using OpenCV
+            cv_image = cv2.imread(fileName)
+
+            # Resize the image to your desired dimensions
+            desired_height = 224
+            desired_width = 224
+            resized_cv_image = cv2.resize(cv_image, (desired_width, desired_height))
+
+            # Convert the resized OpenCV image (NumPy array) back to a QImage
+            height, width, channels = resized_cv_image.shape
+            bytesPerLine = channels * width
+            qImage = QImage(resized_cv_image.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
+
+            # Convert QImage to QPixmap and display it
+            pixmap = QPixmap.fromImage(qImage)
             self.image_label.setPixmap(pixmap)
             self.image_label.setScaledContents(True)
 
@@ -162,7 +178,7 @@ class App(QWidget):
         img = attack("cpu", img, True, False, False, False, False)
 
         model = CustomNetwork(None, None)
-        model.load_state_dict(torch.load(args.s))
+        model.load_state_dict(torch.load(args.s, map_location=torch.device('cpu')))
         model.eval()
 
         classes = read_class_names('./data/Extracted_Images/test/class_names.txt')
@@ -203,8 +219,8 @@ class App(QWidget):
 
     def parse_arguments(self):
         parser = argparse.ArgumentParser(description='Arguments to pass to the test module')
-        parser.add_argument('-cuda', type=str, default='cuda', help='device')
-        parser.add_argument('-s', type=str, default='./data/models/mapillary_vgg_all_classes_brightness.pth',
+        parser.add_argument('-cuda', type=str, default='cpu', help='device')
+        parser.add_argument('-s', type=str, default='./data/models/6_mapillary_vgg_all_classes_brightness.pth',
                             help='weight path')
         parser.add_argument('-i', type=int, default=126, help='image index to test')
 

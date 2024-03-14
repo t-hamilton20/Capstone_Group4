@@ -175,7 +175,7 @@ class App(QWidget):
         # Convert the NumPy array to a PyTorch tensor
         img = torch.from_numpy(image_np).permute(2, 0, 1).unsqueeze(0).float() / 255.0
 
-        img = attack("cpu", img, True, False, False, False, False)
+        img = attack("cpu", img, False, False, False, False, False)
 
         model = CustomNetwork(None, None)
         model.load_state_dict(torch.load(args.s, map_location=torch.device('cpu')))

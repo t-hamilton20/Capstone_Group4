@@ -52,9 +52,9 @@ def single_attack(device, single_tensor, add_rects: bool, rotate_imgs: bool, fis
 
 def add_rectangles(in_img_np, width: int, height: int, num_rectangles: int = 1):
     #BLACK
-    color = (256, 256, 256)
+    #color = (256, 256, 256)
     #WHITE
-    #color = (1, 1, 1)
+    color = (1, 1, 1)
     # in_img_np is now expected to be a numpy array
     image = cv2.resize(in_img_np, (224, 224))
     image_height, image_width, _ = image.shape

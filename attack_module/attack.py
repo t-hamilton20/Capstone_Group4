@@ -30,7 +30,25 @@ def attack(device, batch_tensor, add_rects: bool, rotate_imgs: bool, fish_img: b
     processed_tensor = torch.from_numpy(processed_batch_np).to(device)  # Ensure tensor is on the correct device
     return processed_tensor
 
+def single_attack(device, single_tensor, add_rects: bool, rotate_imgs: bool, fish_img: bool, dented: bool, noisy: bool):
+    img_np = single_tensor.cpu().numpy()
+    img_np = np.transpose(img_np, (1, 2, 0))  # Transpose to (height, width, channels)
 
+    if dented:
+        img_np = apply_dent(img_np)
+    if add_rects:
+        img_np = add_rectangles(img_np, width=random.randint(20, 100), height=random.randint(20, 100),
+                                num_rectangles=1)
+    if rotate_imgs:
+        img_np = rotate_images(img_np)
+    if fish_img:
+        img_np = apply_fisheye(img_np)
+    if noisy:
+        img_np = apply_noise(img_np)
+
+    img_np = np.transpose(img_np, (2, 0, 1))  # Transpose back to (channels, height, width)
+    processed_tensor = torch.from_numpy(img_np).to(device)  # Ensure tensor is on the correct device
+    return processed_tensor
 
 def add_rectangles(in_img_np, width: int, height: int, num_rectangles: int = 1):
     #BLACK

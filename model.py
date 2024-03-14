@@ -78,5 +78,11 @@ class CustomNetwork(nn.Module):
 
     def forward(self, x):
         x = self.encoder(x)
+        print("AFTER ENCODER, SIZE: ", x.size())
+        x = x.view(x.size(0), -1)
+        print(x.size())
+        x = x.view(x.size(0), -1)
+        x =x.view(1, -1)
+        print(x.size())
         output = self.classify(x)
         return output

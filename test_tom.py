@@ -20,8 +20,9 @@ def test_transform():
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Arguments to pass to the train module')
     parser.add_argument('-cuda', type=str, default='cuda', help='device')
-    parser.add_argument('-s', type=str, default='./data/models/6_mapillary_vgg_all_classes_brightness.pth', help='weight path')
+    parser.add_argument('-s', type=str, default='./data/models/VGG_Attacked_Final.pth', help='weight path')
     parser.add_argument('-b', type=int, default=1, help='batch size')
+    parser.add_argument('-checkpoint', type=bool, default=False, help='Checkpoint?')
 
     argsUsed = parser.parse_args()
     return argsUsed
@@ -39,7 +40,13 @@ if __name__ == "__main__":
     test_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
 
     model = CustomNetwork(None, None)
-    model.load_state_dict(torch.load(args.s, map_location=device))
+
+    checkpoint = torch.load(args.s, map_location=device)
+    if args.checkpoint:
+        model.load_state_dict(checkpoint['state_dict'])
+    else:
+        model.load_state_dict(checkpoint)
+
     model.to(device)
     model.eval()
 
@@ -54,7 +61,7 @@ if __name__ == "__main__":
         for img, labels in test_loader:
             img = img.to(device)
             labels = labels.to(device)
-            img = attack(device, img, False, True, False, False, False)
+            img = attack(device, img, False, False, False, False, False)
             outputs = model(img)
             _, predicted = torch.max(outputs.data, 1)
             # print(f"Predicted: {classes[predicted[0]]}, Label: {classes[labels[0]]}")

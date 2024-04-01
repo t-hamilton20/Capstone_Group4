@@ -7,18 +7,19 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from custom_dataset import SignDataset
 from model import EncoderAndClassifier, CustomNetwork
-from tqdm import tqdm
-# import torchsummary
+import torchsummary
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Arguments to pass to the train module')
-    parser.add_argument('-lr', type=float, default=0.001, help='initial learning rate')
-    parser.add_argument('-e', type=int, default=30, help='number of epochs')
-    parser.add_argument('-b', type=int, default=512, help='batch size')
+    parser.add_argument('-lr', type=float, default=0.0001, help='initial learning rate')
+    parser.add_argument('-e', type=int, default=40, help='number of epochs')
+    parser.add_argument('-b', type=int, default=128, help='batch size')
     parser.add_argument('-cuda', type=int, default='1', help='device')
-    parser.add_argument('-s', type=str, default='weights.pth', help='weights path')
-    parser.add_argument('-p', type=str, default='loss_plot.png', help='Path to save the loss plot')
+    parser.add_argument('-s', type=str, default='VGG_Attacked.pth', help='weights path')
+    parser.add_argument('-p', type=str, default='attacked_loss_plot.png', help='Path to save the loss plot')
+    parser.add_argument('-checkpoint', type=str, default='./data/models/intermediates/4_VGG_Attacked.pth', help='Path to checkpoint')
+    #parser.add_argument('-checkpoint', type=str, default='', help='Path to checkpoint')
 
     return parser.parse_args()
 
@@ -40,33 +41,60 @@ test_transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
+
 def calculate_class_weights(train_loader, num_classes):
     class_counts = torch.zeros(num_classes)
     total_samples = 0
 
+    i = 0
+
     for _, labels in train_loader:
         class_counts += torch.bincount(labels, minlength=num_classes)
         total_samples += len(labels)
+        i += 1
+        if i % 100 == 0:
+            print(f"Class weights: {i}/{len(train_loader)}")
 
     class_weights = total_samples / (num_classes * class_counts)
     return class_weights
 
+
 num_classes = 400
 
-def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, scheduler, device):
+
+def load_checkpoint(filepath, model, optimizer, scheduler):
+    checkpoint = torch.load(filepath)
+
+    model.load_state_dict(checkpoint['state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer'])
+    scheduler.load_state_dict(checkpoint['scheduler'])
+
+    start_epoch = checkpoint['epoch'] + 1
+
+    losses_train = checkpoint.get('loss_train', [])
+    losses_val = checkpoint.get('loss_val', [])
+
+    return start_epoch, losses_train, losses_val
+
+
+def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, scheduler, device, losses_train, losses_val, start_epoch):
     print(f"Starting training at: {datetime.datetime.now()}")
 
-    losses_train = []
-    losses_val = []
+    print("Beginning class weight analysis")
 
-    # class_weights = calculate_class_weights(train_loader, num_classes)
-    # class_weights = class_weights.to(device)
+    #class_weights = calculate_class_weights(train_loader, num_classes)
+    #class_weights = class_weights.to(device)
 
-    for epoch in range(1, n_epochs + 1):
+    #print(f"{datetime.datetime.now()}: Class weights determined")
+
+    for epoch in range(start_epoch, n_epochs + 1):
+        print(f"{datetime.datetime.now()} - Epoch {epoch}/{n_epochs}")
         model.train()
         loss_train = 0.0
-        
-        for img, labels in tqdm(train_loader, desc=f'Epoch {epoch}/{n_epochs}', leave=False):
+
+        for i, (img, labels) in enumerate(train_loader):
+            if i % 100 == 0:
+                print(f"Batch {i}/{len(train_loader)}")
             img = img.to(device=device)
             labels = labels.to(device=device)
             optimizer.zero_grad()
@@ -94,7 +122,8 @@ def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, schedul
 
         training_loss = loss_train / len(train_loader)
         validation_loss = loss_val / len(val_loader)
-        print(f"{datetime.datetime.now()} Epoch {epoch}. Training Loss {training_loss}, Validation Loss {validation_loss}")
+        print(
+            f"{datetime.datetime.now()} Epoch {epoch}. Training Loss {training_loss}, Validation Loss {validation_loss}")
 
         plt.plot(losses_train, label='Training Loss')
         plt.plot(losses_val, label='Validation Loss')
@@ -102,8 +131,16 @@ def train(n_epochs, optimizer, model, loss_fn, train_loader, val_loader, schedul
         plt.savefig("data/loss_plots/" + args.p)
         plt.clf()
 
-        filepath = os.path.join('data/models/intermediates', f"{epoch}_{args.s}")
-        torch.save(model.state_dict(), filepath)
+        state = {
+            'epoch': epoch,
+            'state_dict': model.state_dict(),
+            'optimizer': optimizer.state_dict(),
+            'scheduler': scheduler.state_dict(),
+            'loss_train': losses_train,
+            'loss_val': losses_val
+        }
+        filepath = os.path.join('./data/models/intermediates', f"{epoch}_{args.s}")
+        torch.save(state, filepath)
 
 
 args = parse_arguments()
@@ -114,20 +151,18 @@ if args.cuda == 0:
     device = 'cpu'
 print(f'Device: {device}')
 
-root_dir = "../data/Complete/"
+root_dir = "./data/Extracted/"
 
-train_dataset = SignDataset(root_dir=root_dir, train=True, transform=train_transform())
-test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform)
+train_dataset = SignDataset(root_dir=root_dir, train=True, transform=train_transform(), attack_train=False)
+test_dataset = SignDataset(root_dir=root_dir, train=False, transform=test_transform, attack_train=False)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=args.b, shuffle=True)
 val_loader = DataLoader(dataset=test_dataset, batch_size=args.b, shuffle=False)
 
 model = CustomNetwork(None, None)
-# model.load_state_dict(torch.load('data/models/intermediates/10_mapillary_resnet50_all_classes_brightness.pth'))
 model.train()
 model.to(device)
 print(torch.cuda.memory_summary())
-
 # print(torchsummary.summary(model, batch_size=args.b, input_size=(3, 224, 224)))
 
 lr = args.lr
@@ -137,11 +172,17 @@ sched = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer=opt, factor=0.1, pa
 # sched = torch.optim.lr_scheduler.ExponentialLR(optimizer=opt, gamma=0.95)
 loss_fn = torch.nn.CrossEntropyLoss()
 
-train(n_epochs=args.e, optimizer=opt, model=model, scheduler=sched, loss_fn=loss_fn, device=device, train_loader=train_loader, val_loader=val_loader)
-model_dir = "data/models/" + args.s
+start_epoch = 1
+losses_train = []
+losses_val = []
+
+if args.checkpoint and os.path.isfile(args.checkpoint):
+    start_epoch, losses_train, losses_val = load_checkpoint(args.checkpoint, model, opt, sched)
+    print(f"Resuming training from epoch {start_epoch}")
+
+train(n_epochs=args.e, optimizer=opt, model=model, scheduler=sched, loss_fn=loss_fn, device=device,
+      train_loader=train_loader, val_loader=val_loader, losses_train=losses_train, losses_val=losses_val, start_epoch=start_epoch)
+model_dir = "./data/models/" + args.s
 model_state_dict = model.state_dict()
 torch.save(model_state_dict, model_dir)
 print("model saved")
-
-
-

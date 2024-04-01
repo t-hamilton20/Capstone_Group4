@@ -1,13 +1,16 @@
 import os
 from PIL import Image
 from torch.utils.data import Dataset
+from attack_module.attack import attack
+import random
 
 
 class SignDataset(Dataset):
-    def __init__(self, root_dir, transform=None, train=True):
+    def __init__(self, root_dir, transform=None, train=True, attack_train=True):
         self.root_dir = root_dir
         self.transform = transform
         self.train = train
+        self.attack_train = attack_train
 
         # Define the folder based on the 'train' parameter
         if self.train:
@@ -48,5 +51,13 @@ class SignDataset(Dataset):
 
         if self.transform:
             img = self.transform(img)
+
+        if self.attack_train:
+            rectBool = random.random() < 0.1
+            rotnBool = random.random() < 0.1
+            fishBool = random.random() < 0.1
+            dentBool = random.random() < 0.1
+            noiseBool = random.random() < 0.1
+            img = attack('cuda', img.unsqueeze(0), rectBool, rotnBool, fishBool, dentBool, noiseBool).squeeze(0)
 
         return img, label

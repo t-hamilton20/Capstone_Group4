@@ -1,0 +1,9 @@
+weights_file : dataset | augmentation | num_epochs | batch_size | lr | model_modifications
+
+mapillary_9_times_all_classes.pth : mapillary | 9 times augmentation, all classes | 40 | 512 | 0.00001 | resnet18 pretrained with batch norms
+mapillary_resnet50_9_times_all_classes.pth : mapillary | 9 times augmentation, all classes | 40 | 512 | 0.00001 | resnet50 pretrained with batch norms
+mapillary_resnet50simple_9_times_all_classes.pth : mapillary | 9 times augmentation, all classes | 40 | 512 | 0.00001 | resnet50 pretrained without any modifications
+mapillary_resnet18_all_classes_brightness.pth : mapillary | 9 times augmentation, all classes, all images, with brightness | 40 | 512 | 0.00001 | resnet18 pretrained with batch norms
+mapillary_resnet50_all_classes_brightness.pth : mapillary | 9 times augmentation, all classes, all images, with brightness | 40 | 512 | 0.00001 | resnet50 pretrained with batch norms
+mapillary_resnet50_all_classes_brightness_lower_lr.pth : mapillary | 9 times augmentation, all classes, all images, with brightness | 20 | 512 | 0.000001 | mapillary_resnet50_all_classes_brightness.pth after epoch 10 trained with lower LR
+mapillary_vgg_all_classes_brightness.pth : mapillary | 9 times augmentation, all classes, all images, with brightness | 40 | 512 | 0.00001 | vgg pretrained with batch norms

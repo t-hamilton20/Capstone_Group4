@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
-from torchvision.models.detection import fasterrcnn_resnet50_fpn, FasterRCNN_ResNet50_FPN_Weights
-from torchvision.models import resnet18, ResNet18_Weights
+from torchvision.models import resnet18, ResNet18_Weights, resnet50, ResNet50_Weights, vgg16, VGG16_Weights
 
 
 class ResnetLocal(nn.Module):
@@ -16,12 +15,38 @@ class ResnetLocal(nn.Module):
     
 
 class EncoderAndClassifier:
-    encoder = nn.Sequential(*list(resnet18(weights=ResNet18_Weights.IMAGENET1K_V1).children())[:-1])
-    num_features = resnet18().fc.in_features
-    simple_classification = nn.Sequential(
+    # encoder = nn.Sequential(*list(resnet18(weights=ResNet18_Weights.IMAGENET1K_V1).children())[:-1])
+    # encoder = nn.Sequential(*list(resnet50(weights=ResNet50_Weights.IMAGENET1K_V1).children())[:-1])
+    modified_vgg = vgg16(weights=VGG16_Weights.IMAGENET1K_V1)
+    encoder = nn.Sequential(*list(modified_vgg.features.children()))
+    # num_features = resnet18().fc.in_features
+    # num_features = resnet50().fc.in_features
+    num_features = vgg16().classifier[0].in_features
+
+    modified_vgg.classifier = nn.Sequential(
         nn.Flatten(),
-        nn.Linear(num_features, 398)
+        nn.Linear(num_features, num_features//4),
+        nn.BatchNorm1d(num_features//4),
+        nn.ReLU(),
+        # nn.Linear(num_features//2, num_features//4),
+        # nn.BatchNorm1d(num_features//4),
+        # nn.ReLU(),
+        nn.Linear(num_features//4, 400)
     )
+
+    simple_classification = modified_vgg.classifier
+
+    # simple_classification = nn.Sequential(
+    #     nn.Flatten(),
+    #     nn.Linear(num_features, num_features//2),
+    #     nn.BatchNorm1d(num_features//2),
+    #     nn.ReLU(),
+    #     nn.Linear(num_features//2, num_features//4),
+    #     nn.BatchNorm1d(num_features//4),
+    #     nn.ReLU(),
+    #     nn.Linear(num_features//4, 400)
+    #     # nn.Linear(num_features, 400)
+    # )
     
 class CustomNetwork(nn.Module):
     def __init__(self, encoder, classification):
@@ -53,5 +78,6 @@ class CustomNetwork(nn.Module):
 
     def forward(self, x):
         x = self.encoder(x)
+        x = x.reshape(x.size(0), -1)  # Flatten the tensor while keeping the batch dimension
         output = self.classify(x)
         return output
